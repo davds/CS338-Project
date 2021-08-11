@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tutorial
+from .models import Profile
 from tinymce.widgets import TinyMCE
 from django.db import models
 
@@ -13,4 +13,4 @@ class TutorialAdmin(admin.ModelAdmin):
     }
 
 
-admin.site.register(Tutorial,TutorialAdmin)
+admin.site.register(Profile,TutorialAdmin)
