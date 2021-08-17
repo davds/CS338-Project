@@ -2,20 +2,61 @@ from django.db import models
 from datetime import datetime   
 #from django.core.validators import MinValueValidator, MaxValueValidator
 
+class CardItem(models.Model):
+    item_key = models.CharField(max_length=200)
+    item_value = models.CharField(max_length=200)
+    def __str__(self):
+        return self.item_key
+
+class Card(models.Model):
+    title = models.CharField(max_length=200)
+    items = models.ManyToManyField(CardItem)
+    def __str__(self):
+        return self.title
+
 # Create your models here.
 class Profile(models.Model):
-    tutorial_title = models.CharField(max_length=200)
-    tutorial_content = models.TextField()
-    tutorial_published = models.DateTimeField('date published', default=datetime.now)
+    username = models.CharField(max_length=200)
+    content = models.TextField()
+    last_updated = models.DateTimeField('date published', default=datetime.now)
+    cards = models.ManyToManyField(Card, blank=True)
+    def __str__(self):
+        return self.username
+
+
+
+
+
+'''
+class TutorialCategory(models.Model):
+    tutorial_category = models.CharField(max_length=200)
+    category_summary = models.CharField(max_length=200)
+    category_slug = models.CharField(max_length=200, default=1)
+    class Meta:
+        # Gives the proper plural name for admin
+        verbose_name_plural = "Categories"
+    def __str__(self):
+        return self.tutorial_category
+
+class TutorialSeries(models.Model):
+    tutorial_series = models.CharField(max_length=200)
+
+    tutorial_category = models.ForeignKey(TutorialCategory, default=1, verbose_name="Category", on_delete=models.SET_DEFAULT)
+    series_summary = models.CharField(max_length=200)
+
+    class Meta:
+        # otherwise we get "Tutorial Seriess in admin"
+        verbose_name_plural = "Series"
 
     def __str__(self):
-        return self.tutorial_title
+        return self.tutorial_series
 
-#class Profile(models.Model):
-    #profile_username = models.TextField()
-    #profile_name = models.TextField()
-    #profile_age = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(99)])
-    #profile_card_info = ArrayField(models.CharField(max_length=20), blank=True)
-    
-    #def __str__(self):
-    #    return self.profile_username
+class Tutorial(models.Model):
+    tutorial_title = models.CharField(max_length=200)
+    tutorial_content = models.TextField()
+    tutorial_published = models.DateTimeField('date published')
+    #https://docs.djangoproject.com/en/2.1/ref/models/fields/#django.db.models.ForeignKey.on_delete
+    tutorial_series = models.ForeignKey(TutorialSeries, default=1, verbose_name="Series", on_delete=models.SET_DEFAULT)
+    tutorial_slug = models.CharField(max_length=200, default=1)
+    def __str__(self):
+        return self.tutorial_title'''

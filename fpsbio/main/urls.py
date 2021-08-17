@@ -7,5 +7,10 @@ app_name = 'main'  # here for namespacing of urls.
 urlpatterns = [
     path("", views.homepage, name="homepage"),
     path("register/", views.register, name="register"),
+    path("logout", views.logout_request, name="logout"),
+    path("login", views.login_request, name="login"),
     path("profile/<username>/", views.profile, name="profile"),
+    path("profile/<username>/edit", views.profile_edit, name="editprofile"),
+    path("profile/", views.myprofile, name="myprofile"),
+    path("update/<username>/<changes>", views.profile_update, name="updateprofile"),
 ]

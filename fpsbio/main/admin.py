@@ -1,16 +1,25 @@
 from django.contrib import admin
-from .models import Profile
+from .models import *
 from tinymce.widgets import TinyMCE
 from django.db import models
 
-class TutorialAdmin(admin.ModelAdmin):
+class ProfileAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Title/date", {'fields': ["tutorial_title", "tutorial_published"]}),
-        ("Content", {"fields": ["tutorial_content"]})
+        ("Username/Date", {'fields': ["username", "last_updated","content"]}),
+        ("Cards", {"fields": ["cards"]})
     ]
-    formfield_overrides = {
-        models.TextField: {'widget': TinyMCE()},   
-    }
+
+class CardAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ("Card", {'fields': ["title", "items"]}),
+    ]
+
+class ItemAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ("Item", {'fields': ["item_key", "item_value"]}),
+    ]
 
 
-admin.site.register(Profile,TutorialAdmin)
+admin.site.register(Profile,ProfileAdmin)
+admin.site.register(Card,CardAdmin)
+admin.site.register(CardItem,ItemAdmin)
