@@ -92,7 +92,6 @@ def profile_update(request, username, changes):
             change = change.split("\":\"")
             key = change[0].strip("\"")
             value = change[1].strip("\"")
-            test = getattr(profile, key)
             setattr(profile, key, value)
             profile.save()
         return redirect("main:myprofile")
