@@ -1,0 +1,7 @@
+To run this app, you will need Python and Django installed. All other requiremed packages are outlined in the requirements.txt file.
+
+To start the app, navigate to the root and run "python manage.py runserver". The server should be hosted on 127.0.0.1.
+
+If you run into errors referencing Models, try running "python manage.py makemigrations" and then "python manage.py migrate".
+
+If you run into errors referencing static files, try running "python manage.py collectstatic".
