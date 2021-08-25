@@ -1,1 +1,1 @@
-web: gunicorn fpsbio.wsgi
+web: python manage.py runserver
