@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect
+from django.utils.regex_helper import contains
 from .models import *
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages;
 from .forms import NewUserForm
+import json
 
 # Create your views here.
 def homepage(request):
     return render(request = request,
-                  template_name='main/home.html',
-                  context = {"profiles":Profile.objects.all})
+                  template_name='main/home.html')
 
 def register(request):
     if request.method == "POST":
@@ -83,17 +84,79 @@ def profile_edit(request, username):
     else:     
         return redirect("main:homepage")
    
-def profile_update(request, username, changes):
-    r_username = request.user.get_username()
-    if (r_username == username):
-        profile = Profile.objects.get(username=username)
-        changes = changes.split(",")
-        for change in changes:
-            change = change.split("\":\"")
-            key = change[0].strip("\"")
-            value = change[1].strip("\"")
-            setattr(profile, key, value)
-            profile.save()
-        return redirect("main:myprofile")
-    else:     
-        return redirect("main:homepage")   
+def profile_update(request, username):
+    if request.method == "POST":
+        r_username = request.user.get_username()
+        if (r_username == username):
+            profile = Profile.objects.get(username=username)
+            changes = json.loads(request.POST["changes"])
+            for type in changes:    
+                for change in changes[type]:
+                    if type == "profile":
+                        key = change["key"]
+                        value = change["value"]
+                        setattr(profile, key, value)
+                        profile.save()
+                    else:
+                        id = change["id"]
+                        changed = change["changed"]
+                        value = change["value"]
+                        if type == "cards":                            
+                            card = Card.objects.get(id=id)
+                            print(card)
+                            print(id, changed, value)
+                            setattr(card, changed, value)
+                            card.save()
+                        if type == "items":        
+                            item = CardItem.objects.get(id=id)
+                            print(item)
+                            print(id, changed, value)
+                            setattr(item, changed, value)
+                            item.save()
+        
+            removed = json.loads(request.POST["removed"])
+            for type in removed:                
+                for id in removed[type]:
+                    if type == "cards":
+                        card = Card.objects.get(id=id)
+                        card.delete()
+                    if type == "items":
+                        card = CardItem.objects.get(id=id)
+                        card.delete()
+
+            added = json.loads(request.POST["added"])
+            for type in added:                
+                print(type)
+                for element in added[type]:
+                    print(element)
+                    if type == "cards":
+                        card = Card(title=element["title"], type=element["type"])
+                        card.save()
+                        for item in added["items"]:
+                            if item["card"] == element["tempID"]:
+                                item["card"] = card.id
+                        profile.cards.add(card)
+                    if type == "items":
+                        cardID = element["card"]
+                        key = element["key"]
+                        value = element["value"]
+                        item = CardItem(key=key, value=value)
+                        item.save()
+
+                        card = Card.objects.get(id=cardID)
+                        card.save()
+                        card.items.add(item)
+                
+            return redirect("main:myprofile")
+        else:     
+            return redirect("main:homepage")   
+
+def search(request):    
+    return render(request = request,
+                  template_name='main/search.html',
+                  context = {"profiles":Profile.objects.all})
+
+def searchByUsername(request, username):    
+    return render(request = request,
+                  template_name='main/search.html',
+                  context = {"profiles":Profile.objects.filter(username__contains=username)})

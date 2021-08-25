@@ -3,60 +3,28 @@ from datetime import datetime
 #from django.core.validators import MinValueValidator, MaxValueValidator
 
 class CardItem(models.Model):
-    item_key = models.CharField(max_length=200)
-    item_value = models.CharField(max_length=200)
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=200)
+    value = models.CharField(max_length=200)
     def __str__(self):
-        return self.item_key
+        return self.key + "_" + str(self.id)
 
 class Card(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
-    items = models.ManyToManyField(CardItem)
+    type = models.CharField(max_length=200,default="game")
+    items = models.ManyToManyField(CardItem, blank=True)
+    content = models.CharField(max_length=99999,blank=True,default="")
     def __str__(self):
-        return self.title
+        return self.title + "_" + str(self.id)
 
-# Create your models here.
 class Profile(models.Model):
     username = models.CharField(max_length=200)
+    name = models.CharField(max_length=200,blank=True)
+    image = models.CharField(max_length=200,blank=True)
+    theme = models.CharField(max_length=200,blank=True)
     content = models.TextField()
     last_updated = models.DateTimeField('date published', default=datetime.now)
     cards = models.ManyToManyField(Card, blank=True)
     def __str__(self):
         return self.username
-
-
-
-
-
-'''
-class TutorialCategory(models.Model):
-    tutorial_category = models.CharField(max_length=200)
-    category_summary = models.CharField(max_length=200)
-    category_slug = models.CharField(max_length=200, default=1)
-    class Meta:
-        # Gives the proper plural name for admin
-        verbose_name_plural = "Categories"
-    def __str__(self):
-        return self.tutorial_category
-
-class TutorialSeries(models.Model):
-    tutorial_series = models.CharField(max_length=200)
-
-    tutorial_category = models.ForeignKey(TutorialCategory, default=1, verbose_name="Category", on_delete=models.SET_DEFAULT)
-    series_summary = models.CharField(max_length=200)
-
-    class Meta:
-        # otherwise we get "Tutorial Seriess in admin"
-        verbose_name_plural = "Series"
-
-    def __str__(self):
-        return self.tutorial_series
-
-class Tutorial(models.Model):
-    tutorial_title = models.CharField(max_length=200)
-    tutorial_content = models.TextField()
-    tutorial_published = models.DateTimeField('date published')
-    #https://docs.djangoproject.com/en/2.1/ref/models/fields/#django.db.models.ForeignKey.on_delete
-    tutorial_series = models.ForeignKey(TutorialSeries, default=1, verbose_name="Series", on_delete=models.SET_DEFAULT)
-    tutorial_slug = models.CharField(max_length=200, default=1)
-    def __str__(self):
-        return self.tutorial_title'''

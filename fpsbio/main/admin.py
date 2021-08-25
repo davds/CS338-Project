@@ -5,18 +5,18 @@ from django.db import models
 
 class ProfileAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Username/Date", {'fields': ["username", "last_updated","content"]}),
+        ("Username/Date", {'fields': ["username", "name", "last_updated","content"]}),
         ("Cards", {"fields": ["cards"]})
     ]
 
 class CardAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Card", {'fields': ["title", "items"]}),
+        ("Card", {'fields': ["title", "type", "items", "content"]}),
     ]
 
 class ItemAdmin(admin.ModelAdmin):
     fieldsets = [
-        ("Item", {'fields': ["item_key", "item_value"]}),
+        ("Item", {'fields': ["key", "value"]}),
     ]
 
 

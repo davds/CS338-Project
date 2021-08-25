@@ -1,19 +1,26 @@
 {% extends 'main/header.html' %}
 
 {% block content %}
-  <div class="container py-3">
-    <div class="jumbotron">
-        <h1 class="display-4">Welcome to fps.bio!</h1>
-        <p class="lead">fps.bio allows FPS players to easily create a profile to showcase their game settings and any other relevant information.</p>
-        <hr class="my-4">
-        <p>Search for a user on fps.bio:</p>
+<div class="container py-3">
+        <h4>Search Users:</h4>
         <div class="input-group mb-3">
             <input id="searchTerm" type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon2">
             <div class="input-group-append">
                 <button class="btn btn-primary" type="button" onclick="search()">Search</button>
             </div>
         </div>
-    </div>
+    {% for profile in profiles %}        
+        <div class="card">
+            <div class="card-body">
+                <a style="color: black" href="/profile/{{profile.username}}">
+                    <h5 class="card-title">{{profile.username}}</h5>
+                    <p class="card-text">{{profile.content|safe}}</p>
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
     <script>
         let search = () => {
             let term = document.getElementById("searchTerm").value;

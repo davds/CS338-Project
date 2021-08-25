@@ -12,5 +12,7 @@ urlpatterns = [
     path("profile/<username>/", views.profile, name="profile"),
     path("profile/<username>/edit", views.profile_edit, name="editprofile"),
     path("profile/", views.myprofile, name="myprofile"),
-    path("update/<username>/<changes>", views.profile_update, name="updateprofile"),
+    path("update/<username>/", views.profile_update, name="updateprofile"),
+    path("search/", views.search, name="search"),
+    path("search/<username>/", views.searchByUsername, name="searchByUsername"),
 ]

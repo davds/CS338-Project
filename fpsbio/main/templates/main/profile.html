@@ -1,52 +1,280 @@
+<!DOCTYPE html>
 {% extends 'main/header.html' %}
 
 {% block content %}
-<div class="container">    
+<div class="container py-3">    
     <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">{{profile.username}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">Last Updated: {{profile.last_updated}}</h6>
-            {% if edit %}
-            <input id="{{profile.username}}_content" type="text" value="{{profile.content|safe}}"/>
-            {% else %}
-            <p class="card-text">{{profile.content|safe}}</p>
-            {% endif %}
-        </div>        
-            {% if user.username == profile.username %}
+    {% if user.username == profile.username %}
                 {% if not edit %}
-                    <a href="/profile/{{profile.username}}/edit" class="btn btn-primary">Edit Profile</a>
-                {% else %}                
-                    <a style="color: white" onclick="updateProfile()" class="btn btn-primary">Save Changes</a>
+                    <a href="/profile/{{profile.username}}/edit" class="btn btn-outline-dark">Edit Profile</a>
+                {% else %}     
+                <div>
+                    <button style="display: inline; width: 49%; margin-left: .5%" onclick="window.location = '/profile/{{profile.username}}';" class="btn btn-outline-dark">Cancel</button>
+                    <button style="display: inline; width: 49%; margin-left: .5%" onclick="updateProfile(); document.forms[0].submit(); return false;" class="btn btn-outline-dark">Save Changes</button>
+                </div>
                 {% endif %}
             {% endif %}
+        <div class="card-body">
+            <div style="display: inline">
+                <img id="profileImg" style="display: inline-block; vertical-align: top; max-width: 130px;" src="{{profile.image}}"/>
+                <div style="display: inline-block;" class="px-3">
+                    <h1 class="card-title">{{profile.username}}</h1>
+                    {% if edit %}
+                    <p>Image Link: <input onChange="changeProfileImg()" class="editable" id="profile_image" type="text" value="{{profile.image|safe}}"/></p>
+                    <p>Name: <input class="editable" id="profile_name" type="text" value="{{profile.name|safe}}"/></p>
+                    <p>Description: <input class="editable" id="profile_content" type="text" value="{{profile.content|safe}}"/></p>
+                    {% else %}
+                    <h5 class="card-title">{{profile.name}}</h5>
+                    <p class="card-text">{{profile.content|safe}}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>        
+            
     </div>
     {% for card in profile.cards.all %}
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">{{card.title}}</h5>
-            {% for item in card.items.all %}
+    <div id="card_{{card.id}}" class="card my-3">
             {% if edit %}
-            <p class="card-text">{{item.item_key|safe}}:</p><input type="text" value="{{item.item_value|safe}}" />
+                <div class="card-header">
+                    <input class="editable" id="card_{{card.id}}_title" value="{{card.title}}"/>
+                    <button class="btn btn-danger btn-sm float-right" onclick="removeElement('card_{{card.id}}')">X</button>
+                </div>
+                
+                <div class="card-body">
+                {% if card.type == "game" %}
+                {% for item in card.items.all %}
+                    <div>
+                        <input class="editable" id="carditem_{{item.id}}_key" value="{{item.key|safe}}"/> : &nbsp 
+                        <input class="editable" id="carditem_{{item.id}}_value" type="text" value="{{item.value|safe}}" />
+                        <button class="btn btn-danger btn-sm" onclick="removeElement('carditem_{{item.id}}')">X</button>
+                    </div>
+                {% endfor %}      
+                <button name="addNewSetting" class="btn btn-sm btn-primary" onclick="addElement({{card.id}})">Add New Setting</button>
+                {% elif card.type == "text" %}                
+                    <div>
+                        <textarea class="editable" id="card_{{card.id}}_content" >{{card.content|safe}}</textarea>
+                    </div>
+                {% endif %}          
+                </div>
             {% else %}
-            <p class="card-text">{{item.item_key|safe}}: {{item.item_value|safe}}</p>
+                <div class="card-header">
+                    {{card.title}}
+                </div>
+                <div class="card-body">
+                {% if card.type == "game" %}
+                {% for item in card.items.all %}
+                    <p class="card-text">{{item.key|safe}}:&nbsp{{item.value|safe}}</p>
+                {% endfor %}       
+                {% elif card.type == "text" %}    
+                    {{card.content|safe}}
+                {% endif %}         
+                </div>
             {% endif %}
-            {% endfor %}
-        </div>
     </div>    
     {% endfor %}
+    {% if edit %}
+    <div id="addNewCard" class="card text-center" style="border:none !important">
+        <div class="card-body">
+            <button class="btn btn-lg btn-primary" onclick="addCard('game');">Add Game Card</button>
+            <button class="btn btn-lg btn-primary" onclick="addCard('text');">Add Text Card</button>
+        </div>
+    </div>   
+    {% endif %}
 </div>  
+
+<form id="update" method="post" action="/update/{{profile.username}}/">
+    {% csrf_token %}
+    <input type="hidden" id="changes" name="changes" value="" />
+    <input type="hidden" id="removed" name="removed" value="" />
+    <input type="hidden" id="added" name="added" value="" />
+</form>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
+    let edits = [];
+
+    let onChange = (e) => {
+        console.log(e.target);
+        if (!edits.includes(e.target))
+            edits.push(e.target);
+    };
+    $(".editable").on("change", (e) => onChange(e));
+    let deletes = [];
+    let adds = [];
+
     let updateProfile = () => {
-        let content = document.getElementById("{{profile.username}}_content");
-        let update = "";
-        console.log(content.value + " " + "{{profile.content}}")
-        if (content.value != "{{profile.content}}")
-            update += "\"content\":\"" + content.value + "\"";
+        let changes = { profile: [], cards: [], items: []};
+        let removed = { cards: [], items: []};
+        let added = { cards: [], items: []};
+
+        console.log(edits);
+        for (i in edits) {
+            let id = edits[i].id;
+            if (id == undefined)
+                continue;
+
+            let parts = id.split("_");
+            let model = parts[0];
         
-        console.log("/update/{{profile.username}}/" + update);
-        if (update != "") {
-            window.location = "/update/{{profile.username}}/" + update;
+            if (model == "profile") {
+                let element = {};
+                element.key = parts[1];
+                element.value = edits[i].value;
+                changes.profile.push(element);             
+            } else
+            if (model == "card") {
+                let card = {};
+                card.id = parts[1];
+                card.changed = parts[2];
+                if (card.changed == "content") {
+                    card.value = edits[i].getContent();
+                } else
+                    card.value = edits[i].value;
+
+                changes.cards.push(card);
+            } else
+            if (model == "carditem") {
+                let item = {};
+                item.id = parts[1];
+                item.changed = parts[2];
+                item.value = edits[i].value;
+                changes.items.push(item);
+            }
         }
+
+        for (i in deletes) {
+            let parts = deletes[i].split("_");
+            let model = parts[0];
+        
+            if (model == "card") {                
+                removed.cards.push(parts[1]);
+            } else
+            if (model == "carditem") {
+                removed.items.push(parts[1]);
+            }
+        }
+
+        for (i in adds) {
+            let parts = adds[i].split("_");
+            let model = parts[0];
+        
+            if (model == "card") {              
+                let card = {}; 
+                card.tempID = parts[1];
+                card.title = document.getElementById("card_"+parts[1]+"_title").value;
+                card.type = parts[2];
+                added.cards.push(card);
+            } else
+            if (model == "carditem") {
+                let item = {};
+                let keyElement = document.getElementById("carditem_" + parts[1] + "_key");
+                let valElement = document.getElementById("carditem_" + parts[1] + "_value");
+                item.card = keyElement.parentElement.parentElement.parentElement.id.split("_")[1];
+                item.key = keyElement.value;
+                item.value = valElement.value;
+                added.items.push(item);
+            }
+        }
+        console.log(JSON.stringify(changes));
+            
+        $("#changes").val(JSON.stringify(changes));        
+        $("#removed").val(JSON.stringify(removed));    
+        $("#added").val(JSON.stringify(added));
     }
+
+    let lastRemove = "";
+    let removeElement = (e) => {        
+        let parts = e.split("_");
+        let model = parts[0];
+
+        if (model == "card") {            
+            deletes.push(e);
+            $("#" + e).hide();
+            lastRemove = e;
+        } else
+        if (model == "carditem") {
+            deletes.push(e);
+            $("#" + e + "_key").parent().hide();
+            lastRemove = e;
+        } else
+        if (model == "new") {
+            if (parts[1] == "card") {
+                $("#" + e.replace("new_", "")).hide();
+                adds.splice(adds.indexOf(parts[2]));
+            } else {
+                $("#" + e.replace("new_", "") + "_key").parent().hide();
+                adds.splice(adds.indexOf(parts[2]));
+            }
+        }
+        
+    }
+    let addElement = (cardID) => {
+        console.log(cardID);
+        let tempId = Math.floor(Math.random()*1000);
+        $("#card_"+cardID+" button[name='addNewSetting']").before(`<div>
+                    <input id="carditem_`+tempId+`_key" /> : 
+                    <input id="carditem_`+tempId+`_value" />
+                    <button class="btn btn-danger btn-sm" onclick="removeElement('new_carditem_`+tempId+`')">X</button></div>`);
+        adds.push("carditem_"+tempId);
+    }
+
+    let addCard = (type) => {        
+        let tempId = Math.floor(Math.random()*1000);
+        if (type == "game") {
+            $("#addNewCard").before(`<div id="card_`+tempId+`" class="card">
+                    <div class="card-header">
+                        <input class="editable" id="card_`+tempId+`_title"/>
+                        <button class="btn btn-danger btn-sm float-right" onclick="removeElement('new_card_`+tempId+`')">X</button>
+                    </div>
+                    
+                    <div class="card-body">
+                    <button name="addNewSetting" class="btn btn-sm btn-primary" onclick="addElement(`+tempId+`)">Add New Setting</button>          
+                    </div>
+                </div>`);
+            adds.push("card_"+tempId+"_game");
+        } else
+        if (type == "text") {
+            $("#addNewCard").before(`<div id="card_`+tempId+`" class="card">
+                    <div class="card-header">
+                        <input class="editable" id="card_`+tempId+`_title"/>
+                        <button class="btn btn-danger btn-sm float-right" onclick="removeElement('new_card_`+tempId+`')">X</button>
+                    </div>
+                    
+                    <div class="card-body">
+                        <textarea></textarea>
+                    </div>
+                </div>`);
+            adds.push("card_"+tempId+"_text");
+            initTinyMCE();            
+        }        
+    }
+
+    let changeProfileImg = () => {
+        $("#profileImg").attr("src", $("#profile_image").val());
+    }
+
+    let initTinyMCE = () =>  {
+        tinymce.init({
+            selector: 'textarea',
+            height: 500,
+            menubar: false,
+            plugins: [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table paste code help wordcount'
+            ],
+            toolbar: 'undo redo | formatselect | ' +
+            'bold italic backcolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | help',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+            init_instance_callback: function (editor) {
+                editor.on('change', function (e) {
+                    onChange(e)
+                });
+            }
+        });
+    }
+    initTinyMCE();
 </script>
-{% endblock %}
+{% endblock %}    
