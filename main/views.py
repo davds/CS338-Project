@@ -103,14 +103,10 @@ def profile_update(request, username):
                         value = change["value"]
                         if type == "cards":                            
                             card = Card.objects.get(id=id)
-                            print(card)
-                            print(id, changed, value)
                             setattr(card, changed, value)
                             card.save()
                         if type == "items":        
                             item = CardItem.objects.get(id=id)
-                            print(item)
-                            print(id, changed, value)
                             setattr(item, changed, value)
                             item.save()
         
@@ -125,10 +121,8 @@ def profile_update(request, username):
                         card.delete()
 
             added = json.loads(request.POST["added"])
-            for type in added:                
-                print(type)
+            for type in added:               
                 for element in added[type]:
-                    print(element)
                     if type == "cards":
                         card = Card(title=element["title"], type=element["type"])
                         card.save()

@@ -7,13 +7,17 @@
         <br>
         <form method="POST">
             {% csrf_token %}
-            <div>
-                <div class="form-group row center">
+            <div class="container">
+                <div class="form-group center">
                     <label for="id_username" class="col-sm-2 col-form-label">Username:</label>
                     <div>                
-                        <input class="form-control" type="text" name="username" maxlength="150" autofocus="" required="" id="id_username" placeholder="Username">      
+                        <input class="form-control" type="text" name="username" maxlength="150" autofocus="" required="" id="id_username" placeholder="Username">    
                     </div>  
-                </div>
+                    
+                </div> 
+                <small class="form-text text-muted">150 characters or less. Letters, digits and @/./+/-/_ only.</small> 
+                    <br>
+                        
                 <div class="form-group row center">
                     <label for="id_email" class="col-sm-2 col-form-label">Email:</label>
                     <div>
@@ -32,17 +36,20 @@
                         <input class="form-control" type="password" name="password2" autocomplete="new-password" required id="id_password2" placeholder="Password">
                     </div>
                 </div>
-            </div>
-            <p>Your password can’t be too similar to your other personal information.</p>
-            <p>Your password must contain at least 8 characters.</p>
-            <p>Your password can’t be a commonly used password.</p>
-            <p>Your password can’t be entirely numeric.</p>
+                <small class="form-text text-muted">Your password can’t be too similar to your other personal information.</small>
+                <small class="form-text text-muted">Your password must contain at least 8 characters.</small>
+                <small class="form-text text-muted">Your password can’t be a commonly used password.</small>
+                <small class="form-text text-muted">Your password can’t be entirely numeric.</small>
+                <button class="btn btn-primary my-3" type="submit">Sign Up</button>
+
             
-            <button class="btn btn-primary" type="submit">Sign Up</button>
+
+                <p>If you already have an account <a href="/login" target="blank"><strong>login</strong></a> instead.</p>
+            </div>
+            
+            
 
         
         </form>
-
-        If you already have an account <a href="/login" target="blank"><strong>login</strong></a> instead.
     </div>
 {% endblock %}
