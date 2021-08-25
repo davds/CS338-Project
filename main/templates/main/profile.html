@@ -2,6 +2,9 @@
 
 {% block content %}
 <div class="container py-3">    
+    {% if edit %}
+        <h3 class="center">Edit Profile:</h3>
+    {% endif %}
     <div class="card">
     {% if user.username == profile.username %}
                 {% if not edit %}
@@ -43,7 +46,7 @@
                 {% if card.type == "game" %}
                 {% for item in card.items.all %}
                     <div>
-                        <input class="editable" id="carditem_{{item.id}}_key" value="{{item.key|safe}}"/> : &nbsp 
+                        <input class="editable" id="carditem_{{item.id}}_key" value="{{item.key|safe}}"/> : 
                         <input class="editable" id="carditem_{{item.id}}_value" type="text" value="{{item.value|safe}}" />
                         <button class="btn btn-danger btn-sm" onclick="removeElement('carditem_{{item.id}}')">X</button>
                     </div>
@@ -62,7 +65,7 @@
                 <div class="card-body">
                 {% if card.type == "game" %}
                 {% for item in card.items.all %}
-                    <p class="card-text">{{item.key|safe}}:&nbsp{{item.value|safe}}</p>
+                    <p class="card-text">{{item.key|safe}} : {{item.value|safe}}</p>
                 {% endfor %}       
                 {% elif card.type == "text" %}    
                     {{card.content|safe}}
@@ -88,7 +91,7 @@
     <input type="hidden" id="added" name="added" value="" />
 </form>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/thnlrrn2yt37mo3psuz98lqtlrfagiymnvu7m5g6aygm9534/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     let edits = [];
 
@@ -255,7 +258,7 @@
     let initTinyMCE = () =>  {
         tinymce.init({
             selector: 'textarea',
-            height: 500,
+            height: 300,
             menubar: false,
             plugins: [
                 'advlist autolink lists link image charmap print preview anchor',
