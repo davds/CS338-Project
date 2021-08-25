@@ -8,7 +8,6 @@ cffi==1.14.0
 chardet==3.0.4
 colorama==0.4.3
 cycler==0.10.0
-Cython==0.29.24
 dj-database-url==0.5.0
 Django==3.2.5
 django-heroku==0.3.1
@@ -20,12 +19,6 @@ idna==2.6
 importlib-metadata==1.7.0
 isort==4.3.21
 jsmin==2.2.2
-Kivy==1.10.0
-Kivy-examples==1.10.0
-Kivy-Garden==0.1.4
-kivy.deps.glew==0.1.9
-kivy.deps.gstreamer==0.1.12
-kivy.deps.sdl2==0.1.17
 kiwisolver==1.1.0
 lazy-object-proxy==1.4.3
 lxml==4.5.0
