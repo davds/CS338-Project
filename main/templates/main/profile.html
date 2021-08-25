@@ -129,6 +129,7 @@
                 card.id = parts[1];
                 card.changed = parts[2];
                 if (card.changed == "content") {
+                    console.log(edits[i].id);
                     card.value = edits[i].getContent();
                 } else
                     card.value = edits[i].value;
@@ -165,6 +166,8 @@
                 card.tempID = parts[1];
                 card.title = document.getElementById("card_"+parts[1]+"_title").value;
                 card.type = parts[2];
+                if (card.type == "text")
+                    card.content = tinyMCE.editors["new_card_"+parts[1]+"_content"].getContent();
                 added.cards.push(card);
             } else
             if (model == "carditem") {
@@ -247,7 +250,7 @@
                     </div>
                     
                     <div class="card-body">
-                        <textarea></textarea>
+                        <textarea id="new_card_`+tempId+`_content"></textarea>
                     </div>
                 </div>`);
             adds.push("card_"+tempId+"_text");

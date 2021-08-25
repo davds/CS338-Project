@@ -125,6 +125,8 @@ def profile_update(request, username):
                 for element in added[type]:
                     if type == "cards":
                         card = Card(title=element["title"], type=element["type"])
+                        if element["type"] == "text":
+                            card.content = element["content"]
                         card.save()
                         for item in added["items"]:
                             if item["card"] == element["tempID"]:
